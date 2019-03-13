@@ -1,0 +1,15 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock title %} - VM Web Manager</title>
+    <link href="{% static 'vmapp/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body>
+{#    {% include 'header.html' %}#}
+    {% block content %}{% endblock content %}
+{#    {% include 'footer.html' %}#}
+    <script src="{% static 'vmapp/bootstrap/js/bootstrap.min.js' %}"></script>
+</body>
+</html>
