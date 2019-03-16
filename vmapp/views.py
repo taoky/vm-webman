@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages, auth
 from django.views.decorators.http import require_POST
 from vmapp.vmman import *
+from .utils import *
 from . import config
 
 
@@ -36,3 +37,5 @@ def index(request):
 @require_POST
 def logout(request):
     auth.logout(request)
+    messages.add_message(request, messages.INFO, "You have logout.")
+    return redirect('login/')

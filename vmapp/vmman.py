@@ -1,20 +1,23 @@
 from requests import get, post, put
 import configparser
-from . import config
 
 
 class Config:
     def __init__(self):
-        self.config = configparser.ConfigParser().read("vmapp/config.ini")
-        for i in self.config.sections():  # check valid values
-            if 'type' not in i:
+        self.config = configparser.ConfigParser()
+        self.config.read("vmapp/config.ini")
+        self.config = {s: dict(self.config.items(s)) for s in self.config.sections()}
+        for key, value in self.config.items():  # check valid values
+            # j = self.config.items(i)
+            # print(value, self.config)
+            if 'type' not in value:
                 raise ValueError("Please set VM type (\"vmware\" or \"virtualbox\").")
-            type = i["type"]
-            if type != "vmware" or type != "virtualbox":
-                raise ValueError("Unsupported VM type.")
-            if 'resturl' not in i:
+            type = value["type"]
+            if type != "vmware" and type != "virtualbox":
+                raise ValueError("Unsupported VM type '%s'." % type)
+            if 'resturl' not in value:
                 raise ValueError("Please set \"resturl\".")
-            if type != "vmware" and ("username" not in i or "password" not in i):
+            if type == "vmware" and ("username" not in value or "password" not in value):
                 raise ValueError("For VMware RESTful API, a username and password is necessary.")
 
 
@@ -119,19 +122,3 @@ class VM:
         self.id = id
         self.name = name
         self.type = type
-
-
-def get_all_vm_list():
-    res = []
-    for i in config:
-        if i["type"] == "virtualbox":
-            v = VirtualBox(url=i["resturl"])
-            l = v.get_all_vm()
-            res += l
-        elif i["type"] == "vmware":
-            v = VMware(url=i["resturl"], username=i["username"], password=i["password"])
-            l = v.get_all_vm()
-            res += l
-        else:
-            raise ValueError
-    return res
