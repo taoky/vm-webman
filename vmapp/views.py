@@ -50,11 +50,13 @@ def detail(request, section, vm_id, vm_type):
 @login_required
 def state(request, section, vm_id, vm_type):
     if request.method == "GET":
+        # show state and chosen form
         vm_now_state = get_one_vm_state(vm_id, vm_type, section)
         return render(request, 'vmapp/state.html', {"vm_now_state": vm_now_state, "vm_id": vm_id,
                                                     "type": vm_type, "section": section,
                                                     "permission": can_change_power_permission(request.user)})
     elif request.method == "POST":
+        # handle user request
         if not can_change_power_permission(request.user):
             messages.add_message(request, messages.ERROR, "Permission denied.")
             return redirect('/')

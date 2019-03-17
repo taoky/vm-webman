@@ -1,10 +1,10 @@
 from django.core.management import call_command
 from shutil import copyfile
-import os, sys, django
+import os, django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vmwebman.settings")
 
-django.setup()
+django.setup()  # setup django environment
 # Migrate database
 call_command("makemigrations", "vmapp")
 call_command("migrate")
@@ -19,4 +19,4 @@ group.save()
 
 copyfile("vmapp/config.sample.ini", "vmapp/config.ini")
 
-print("OK!")
+print("OK! Now modify vmapp/config.ini, and run `python manage.py runserver` to run server")

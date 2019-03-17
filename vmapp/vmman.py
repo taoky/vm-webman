@@ -49,7 +49,7 @@ class VMware(VMManInterface):
             res = put(self.url + route, data=payload, auth=(self.username, self.password), headers=headers)
         else:
             raise ValueError
-        if res.status_code == 401:
+        if res.status_code == 401:  # auth failed
             raise ValueError("Wrong username or password.")
         elif res.status_code != 200:
             raise ValueError("Get HTTP error %d with %s" % (res.status_code, res.text))
@@ -89,6 +89,7 @@ class VirtualBox(VMManInterface):
     def get_one_vm_info(self, id):
         res = self.req("/showvminfo/{}".format(id))
         return res["shell"]["output"]
+        # As the result of a bug in vboxmanage-rest-api, I have to return the shell output to user directly
 
     def get_one_vm_power(self, id):
         res = self.req("/showvminfo/{}".format(id))
