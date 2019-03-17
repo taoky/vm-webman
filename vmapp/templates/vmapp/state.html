@@ -9,6 +9,7 @@
         </div>
         <div class="card-body">
             Now it is: <b>{{ vm_now_state }}</b>
+        {% if permission %}
             <form action="" method="POST">
                 {% csrf_token %}
                 <div class="form-group">
@@ -19,6 +20,10 @@
                             <option>off</option>
                             <option>pause</option>
                             <option>unpause</option>
+                            <option>shutdown</option>
+                            {% if type == "vmware" %}
+                            <option>suspend</option>
+                            {% endif %}
                         </select>
                     </label>
                 </div>
@@ -26,6 +31,11 @@
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Change</button>
                 </div>
             </form>
+        {% else %}
+            <br>
+            <b>You have no permission to change power state!</b>
+            <br>
+        {% endif %}
             <a href="/" class="btn btn-primary">Return Home</a>
         </div>
     </div>

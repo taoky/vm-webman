@@ -52,3 +52,7 @@ def update_one_vm_state(id, type, section, operation):
         return v.update_one_vm_power(id, operation)
     else:
         raise ValueError
+
+
+def can_change_power_permission(user):
+    return user.groups.filter(name="change_power_operation").exists() or user.is_staff or user.is_superuser

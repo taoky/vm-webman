@@ -52,14 +52,19 @@ def state(request, section, vm_id, vm_type):
     if request.method == "GET":
         vm_now_state = get_one_vm_state(vm_id, vm_type, section)
         return render(request, 'vmapp/state.html', {"vm_now_state": vm_now_state, "vm_id": vm_id,
-                                                 "type": vm_type, "section": section})
+                                                    "type": vm_type, "section": section,
+                                                    "permission": can_change_power_permission(request.user)})
     elif request.method == "POST":
+        if not can_change_power_permission(request.user):
+            messages.add_message(request, messages.ERROR, "Permission denied.")
+            return redirect('/')
         new_state = request.POST.get("new_state")
-        if new_state not in ("on", "off", "pause", "unpause"):
+        if new_state not in ("on", "off", "pause", "unpause", "shutdown", "suspend"):
             messages.add_message(request, messages.ERROR, "Wrong request.")
             return redirect('/')
         try:
             res = update_one_vm_state(vm_id, vm_type, section, new_state)
+            messages.add_message(request, messages.INFO, "Your operation is performed successfully.")
         except ValueError as e:
             messages.add_message(request, messages.ERROR, e)
         return redirect('/')

@@ -53,7 +53,7 @@ class VMware(VMManInterface):
 
     def req(self, route, payload=None, method="get"):
         if method == "get":
-            res = get(self.url + route, json=payload, auth=(self.username, self.password))
+            res = get(self.url + route, auth=(self.username, self.password))
         elif method == "put":
             headers = {'Content-type': 'application/vnd.vmware.vmw.rest-v1+json'}
             print(payload)
@@ -90,7 +90,7 @@ class VirtualBox(VMManInterface):
 
     def req(self, route, payload=None, is_post=False):
         if not is_post:
-            res = get(self.url + route, json=payload)
+            res = get(self.url + route)
         else:
             raise ValueError
         if res.status_code != 200:
@@ -118,6 +118,8 @@ class VirtualBox(VMManInterface):
             res = self.req("/controlvm/{}/resume".format(id))
         elif operation == "off":
             res = self.req("/controlvm/{}/poweroff".format(id))
+        elif operation == "shutdown":
+            res = self.req("/controlvm/{}/acpipowerbutton".format(id))
         else:
             raise ValueError("Unsupported operation.")
 
