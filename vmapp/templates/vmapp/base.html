@@ -9,9 +9,27 @@
     <link href="{% static 'vmapp/user/user.css' %}" rel="stylesheet">
 </head>
 <body>
-{#    {% include 'header.html' %}#}
-    {% block content %}{% endblock content %}
+    {% include 'vmapp/header.html' %}
+    <div id="container">
+        {% if messages %}
+                {% for message in messages %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                        <div class="alert alert-danger">
+                            {{ message }}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+        {% endif %}
+    </div>
+    <div class="container">
+        {% block content %}{% endblock content %}
+    </div>
 {#    {% include 'footer.html' %}#}
-{#    <script src="{% static 'vmapp/bootstrap/bootstrap.min.js' %}"></script>#}
+    <script src="{% static 'vmapp/jquery/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'vmapp/bootstrap/bootstrap.min.js' %}"></script>
 </body>
 </html>

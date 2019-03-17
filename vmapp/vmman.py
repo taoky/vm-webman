@@ -28,14 +28,14 @@ class VMManInterface:
     def get_one_vm_info(self, id):
         raise NotImplemented
 
-    def update_one_vm_info(self, id, payload):
-        raise NotImplemented
-
-    def clone_one_vm(self):
-        raise NotImplemented
-
-    def delete_one_vm(self):
-        raise NotImplemented
+    # def update_one_vm_info(self, id, payload):
+    #     raise NotImplemented
+    #
+    # def clone_one_vm(self):
+    #     raise NotImplemented
+    #
+    # def delete_one_vm(self):
+    #     raise NotImplemented
 
     def get_one_vm_power(self, id):
         raise NotImplemented
@@ -45,60 +45,65 @@ class VMManInterface:
 
 
 class VMware(VMManInterface):
-    def __init__(self, url, username, password):
+    def __init__(self, url, username, password, section):
         self.url = url
         self.username = username
         self.password = password
+        self.section = section
 
     def req(self, route, payload=None, method="get"):
         if method == "get":
-            res = get(self.url + route, params=payload, auth=(self.username, self.password))
+            res = get(self.url + route, json=payload, auth=(self.username, self.password))
         elif method == "put":
-            res = put(self.url + route, params=payload, auth=(self.username, self.password))
+            headers = {'Content-type': 'application/vnd.vmware.vmw.rest-v1+json'}
+            print(payload)
+            res = put(self.url + route, data=payload, auth=(self.username, self.password), headers=headers)
         else:
-            res = post(self.url + route, params=payload, auth=(self.username, self.password))
+            raise ValueError
         if res.status_code == 401:
             raise ValueError("Wrong username or password.")
         elif res.status_code != 200:
-            raise ValueError("Get HTTP error %d" % res.status_code)
+            raise ValueError("Get HTTP error %d with %s" % (res.status_code, res.text))
         return res.json()
 
     def get_all_vm(self):
         res = self.req("/vms")
-        return [VM(id=i["id"], name=i["path"], type="vmware") for i in res]
+        return [VM(id=i["id"], name=i["path"], type="vmware", section=self.section) for i in res]
 
     def get_one_vm_info(self, id):
         res = self.req("/vms/{}".format(id))
-        return {"Processor Numbers": res["cpu"]["processors"], "Memory Size": res["memory"]}
+        # print(res)
+        return {"Processor Numbers": res["cpu"]["processors"], "Memory Size": str(res["memory"]) + " MB"}
 
     def get_one_vm_power(self, id):
         res = self.req("/vms/{}/power".format(id))
         return res["power_state"]
 
     def update_one_vm_power(self, id, operation):
-        res = self.req("/vms/{}/power".format(id), method="get", payload={"operation": new_state})
+        res = self.req("/vms/{}/power".format(id), method="put", payload=operation)
 
 
 class VirtualBox(VMManInterface):
-    def __init__(self, url):
+    def __init__(self, url, section):
         self.url = url
+        self.section = section
 
     def req(self, route, payload=None, is_post=False):
         if not is_post:
-            res = get(self.url + route, params=payload)
+            res = get(self.url + route, json=payload)
         else:
-            res = post(self.url + route, params=payload)
+            raise ValueError
         if res.status_code != 200:
-            raise ValueError("Get HTTP error %d" % res.status_code)
+            raise ValueError("Get HTTP error %d with %s" % (res.status_code, res.text))
         return res.json()
 
     def get_all_vm(self):
         res = self.req("/list/vms")
-        return [VM(id=i["uuid"], name=i["name"], type="virtualbox") for i in res["list"]]
+        return [VM(id=i["uuid"], name=i["name"], type="virtualbox", section=self.section) for i in res["list"]]
 
     def get_one_vm_info(self, id):
         res = self.req("/showvminfo/{}".format(id))
-        return {"Memory": res["ram"], "Video Memory": res["vram"]}
+        return res["shell"]["output"]
 
     def get_one_vm_power(self, id):
         res = self.req("/showvminfo/{}".format(id))
@@ -118,7 +123,8 @@ class VirtualBox(VMManInterface):
 
 
 class VM:
-    def __init__(self, id, name, type):
+    def __init__(self, id, name, type, section):
         self.id = id
         self.name = name
         self.type = type
+        self.section = section

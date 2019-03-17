@@ -1,10 +1,9 @@
+from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.contrib import messages, auth
 from django.views.decorators.http import require_POST
-from vmapp.vmman import *
+
 from .utils import *
-from . import config
 
 
 def login(request):
@@ -38,4 +37,29 @@ def index(request):
 def logout(request):
     auth.logout(request)
     messages.add_message(request, messages.INFO, "You have logout.")
-    return redirect('login/')
+    return redirect('/login/')
+
+
+@login_required
+def detail(request, section, vm_id, vm_type):
+    vm_detail = get_one_vm_detail(vm_id, vm_type, section)
+    return render(request, 'vmapp/detail.html', {"vm_detail": vm_detail, "vm_id": vm_id,
+                                                 "type": vm_type, "section": section})
+
+
+@login_required
+def state(request, section, vm_id, vm_type):
+    if request.method == "GET":
+        vm_now_state = get_one_vm_state(vm_id, vm_type, section)
+        return render(request, 'vmapp/state.html', {"vm_now_state": vm_now_state, "vm_id": vm_id,
+                                                 "type": vm_type, "section": section})
+    elif request.method == "POST":
+        new_state = request.POST.get("new_state")
+        if new_state not in ("on", "off", "pause", "unpause"):
+            messages.add_message(request, messages.ERROR, "Wrong request.")
+            return redirect('/')
+        try:
+            res = update_one_vm_state(vm_id, vm_type, section, new_state)
+        except ValueError as e:
+            messages.add_message(request, messages.ERROR, e)
+        return redirect('/')
