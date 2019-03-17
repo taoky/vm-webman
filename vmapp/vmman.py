@@ -1,4 +1,4 @@
-from requests import get, post, put
+from requests import get, put
 import configparser
 
 
@@ -8,8 +8,6 @@ class Config:
         self.config.read("vmapp/config.ini")
         self.config = {s: dict(self.config.items(s)) for s in self.config.sections()}
         for key, value in self.config.items():  # check valid values
-            # j = self.config.items(i)
-            # print(value, self.config)
             if 'type' not in value:
                 raise ValueError("Please set VM type (\"vmware\" or \"virtualbox\").")
             type = value["type"]
@@ -27,15 +25,6 @@ class VMManInterface:
 
     def get_one_vm_info(self, id):
         raise NotImplemented
-
-    # def update_one_vm_info(self, id, payload):
-    #     raise NotImplemented
-    #
-    # def clone_one_vm(self):
-    #     raise NotImplemented
-    #
-    # def delete_one_vm(self):
-    #     raise NotImplemented
 
     def get_one_vm_power(self, id):
         raise NotImplemented
@@ -72,7 +61,6 @@ class VMware(VMManInterface):
 
     def get_one_vm_info(self, id):
         res = self.req("/vms/{}".format(id))
-        # print(res)
         return {"Processor Numbers": res["cpu"]["processors"], "Memory Size": str(res["memory"]) + " MB"}
 
     def get_one_vm_power(self, id):
@@ -88,11 +76,8 @@ class VirtualBox(VMManInterface):
         self.url = url
         self.section = section
 
-    def req(self, route, payload=None, is_post=False):
-        if not is_post:
-            res = get(self.url + route)
-        else:
-            raise ValueError
+    def req(self, route):
+        res = get(self.url + route)
         if res.status_code != 200:
             raise ValueError("Get HTTP error %d with %s" % (res.status_code, res.text))
         return res.json()
