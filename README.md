@@ -24,6 +24,8 @@ Keyu Tao, PB17111630
 
 在 Python 3.7，macOS 10.14.3，VMware Fusion 11.0.2，VirtualBox 6.0.4 下测试通过。
 
+GitHub 不适合放置较大的二进制文件（不使用 LFS 的情况下），所以要求的小视频发布在了 <https://www.bilibili.com/video/av46592034/>。
+
 ## 配置
 
 ### VMware
