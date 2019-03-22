@@ -1,5 +1,6 @@
 from . import config
 from .vmman import VMware, VirtualBox
+from requests.exceptions import ConnectionError
 
 
 def get_all_vm_list():

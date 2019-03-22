@@ -45,7 +45,7 @@ class VMware(VMManInterface):
             res = get(self.url + route, auth=(self.username, self.password))
         elif method == "put":
             headers = {'Content-type': 'application/vnd.vmware.vmw.rest-v1+json'}
-            print(payload)
+            # print(payload)
             res = put(self.url + route, data=payload, auth=(self.username, self.password), headers=headers)
         else:
             raise ValueError

@@ -28,7 +28,12 @@ def login(request):
 
 @login_required
 def index(request):
-    vmlist = get_all_vm_list()
+    vmlist = []
+    try:
+        vmlist = get_all_vm_list()
+    except ConnectionError as e:
+        messages.add_message(request, messages.ERROR, "One of your VM API servers in your config is offline or "
+                                                      "invalid. Caught the exception: %s" % e)
     return render(request, 'vmapp/index.html', {"vmlist": vmlist})
 
 
